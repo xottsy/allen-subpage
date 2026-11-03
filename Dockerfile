@@ -2,6 +2,7 @@ FROM node:24-bookworm-slim AS frontend-build
 WORKDIR /build
 RUN npm install --global npm@12.2.1 --no-audit --no-fund
 COPY frontend/package*.json ./
+COPY frontend/.npmrc ./
 RUN npm ci --ignore-scripts --no-audit --no-fund
 COPY frontend/ .
 RUN npm run typecheck && npm run cb
