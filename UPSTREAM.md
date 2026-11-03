@@ -11,12 +11,20 @@ Allen changes:
 - HMAC-authenticated device checks against Allen core before fetching client configurations
   or rendering browser pages, including resolved legacy links and explicit client formats.
 - Requests fail closed if the check fails, times out, redirects, or returns an invalid decision.
-- A blocked device receives HTTP 403, an `announce` header and a support URL. Browsers receive
-  a dedicated support page with a case reference. How a native application displays an HTTP
-  error or `announce` depends on that application's support; no real connection is returned.
+- A blocked native client receives HTTP 200 with exactly one inert loopback placeholder named
+  “Подозрительная активность, обратитесь в ТП”, plus `announce` and a support URL. Base64/VLESS,
+  Xray JSON, Mihomo/Clash and sing-box formats are supported. No real connection is returned.
+  Browsers receive HTTP 403 with a dedicated support page and case reference; check failures
+  return 503. Rendering of subscription names/announcements depends on the client.
 - When connected, browser bootstrap never contains raw protocol keys, even if the upstream
   page configuration enables their display. Successful and denied responses forbid shared caching.
-- Allen page layout and branding; system font fallbacks without Google Fonts requests.
+- Own Allen frontend: warm light palette, dark green accents, device/app selection, one setup
+  step at a time, separate subscription link/QR and help panels, mobile and keyboard support.
+  Instructions, application URLs, languages and visibility settings still come from the panel.
+  System fonts without Google Fonts requests; matching loading/error/blocked pages.
+- Core prioritizes anomalous Happ User-Agent grammar based on aggregate production data,
+  while preserving observed short legacy and Apple networking formats. Hardware metadata
+  remains secondary; a well-formed UA alone is not proof of a genuine device.
 - A self-contained Docker build builds both frontend and backend from source.
 
 ## Configuration

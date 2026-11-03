@@ -99,7 +99,7 @@ test('request is signed over exact body; client cannot supply gateway authentica
     };
     assert.equal(await new DeviceGate(config).allow(request, response(), 'synthetic-token'), true);
 });
-test('blocked raw subscription never contacts Remnawave and returns no configuration', async () => {
+test('blocked raw subscription never contacts Remnawave and returns only a warning placeholder', async () => {
     global.fetch = async () =>
         new Response(JSON.stringify({ allowed: false, reference: 'AF-12', verdict: 'review' }));
     let contacted = false;
@@ -115,11 +115,57 @@ test('blocked raw subscription never contacts Remnawave and returns no configura
     const res = response();
     await service.serveSubscriptionPage('127.0.0.1', request, res, 'synthetic-token', 'clash');
     assert.equal(contacted, false);
-    assert.equal(res.statusCode, 403);
+    assert.equal(res.statusCode, 200);
     assert.match(res.data, /Подозрительная активность/);
-    assert.match(res.data, /AF-12/);
+    assert.equal(res.headers['x-allen-antifraud-reference'], 'AF-12');
+    const stub = JSON.parse(res.data);
+    assert.equal(stub.proxies.length, 1);
+    assert.equal(stub.proxies[0].server, '127.0.0.1');
+    assert.equal(stub.proxies[0].port, 9);
     assert.doesNotMatch(res.data, /vless:|vmess:|synthetic-token|test-secret/);
     assert.match(res.headers['cache-control'], /no-store/);
+});
+
+test('every warning format contains exactly one inert loopback server and no real access', async () => {
+    global.fetch = async () =>
+        new Response(JSON.stringify({ allowed: false, reference: 'AF-12', verdict: 'review' }));
+    for (const format of [
+        undefined,
+        'base64',
+        'vless',
+        'clash',
+        'mihomo',
+        'stash',
+        'singbox',
+        'sing-box',
+        'json',
+        'xray-json',
+    ]) {
+        const res = response();
+        assert.equal(
+            await new DeviceGate(config).allow(
+                request,
+                res,
+                'private-subscription-token',
+                false,
+                format,
+            ),
+            false,
+        );
+        assert.equal(res.statusCode, 200);
+        assert.equal(res.headers['x-allen-antifraud'], 'blocked');
+        const body =
+            format === undefined || format === 'base64'
+                ? Buffer.from(res.data, 'base64').toString('utf8')
+                : res.data;
+        assert.match(decodeURIComponent(body), /Подозрительная активность/);
+        assert.match(body, /127\.0\.0\.1/);
+        assert.doesNotMatch(
+            body,
+            /private-subscription-token|98ad6d3bb4c86ee28c086f774891e754|test-secret/,
+        );
+        assert.equal((body.match(/11111111-1111-4111-8111-111111111111/g) || []).length, 1);
+    }
 });
 test('blocked browser page never fetches profile data and shows a safe support page', async () => {
     global.fetch = async () =>

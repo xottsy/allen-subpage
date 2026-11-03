@@ -24,7 +24,7 @@ export class SubscriptionService {
         shortUuid: string,
         clientType?: TRequestTemplateTypeKeys,
     ): Promise<void> {
-        if (!(await this.deviceGate.allow(req, res, shortUuid))) return;
+        if (!(await this.deviceGate.allow(req, res, shortUuid, false, clientType))) return;
         try {
             const subscriptionDataResponse = await this.axiosService.getSubscription(
                 clientIp,

@@ -2,6 +2,8 @@ import type { Request, Response } from 'express';
 
 import { createHmac } from 'node:crypto';
 
+import { blockedSubscription } from './blocked-subscription';
+
 export interface DeviceGateOptions {
     url?: string;
     secret?: string;
@@ -77,6 +79,7 @@ export class DeviceGate {
         res: Response,
         shortUuid: string,
         browser = false,
+        clientType?: string,
     ): Promise<boolean> {
         if (!this.enabled) return true;
         this.noStore(res);
@@ -126,7 +129,32 @@ export class DeviceGate {
                 result.verdict === 'unsupported'
                     ? 'Приложение не передало данные устройства. Включите HWID в настройках приложения или обратитесь в поддержку.'
                     : SUSPICIOUS;
-            this.reject(res, browser, 403, message, reference);
+            if (!browser) {
+                const name =
+                    result.verdict === 'unsupported'
+                        ? message
+                        : 'Подозрительная активность, обратитесь в ТП';
+                const stub = blockedSubscription(header('user-agent', 512), clientType, name);
+                this.noStore(res);
+                res.set('X-Allen-Antifraud', 'blocked');
+                res.set(
+                    'announce',
+                    'base64:' +
+                        Buffer.from(
+                            reference ? message + '\nКод обращения: ' + reference : message,
+                        ).toString('base64'),
+                );
+                res.set(
+                    'profile-title',
+                    'base64:' + Buffer.from('Allen VPN · требуется проверка').toString('base64'),
+                );
+                res.set('profile-update-interval', '1');
+                if (this.supportUrl) res.set('support-url', this.supportUrl);
+                if (reference) res.set('X-Allen-Antifraud-Reference', reference);
+                res.status(200).type(stub.contentType).send(stub.body);
+                return false;
+            }
+            this.reject(res, true, 403, message, reference);
             return false;
         } catch {
             // Ошибка/таймаут проверки закрывает выдачу. Исключение не логируется: оно может содержать URL/секреты.
@@ -172,7 +200,7 @@ export class DeviceGate {
             : '';
         res.status(status).type('text/html; charset=utf-8').send(`<!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>${title} · Allen VPN</title>
-<style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:#0b101b;color:#edf2ff;font:17px/1.65 system-ui,sans-serif}.card{width:min(100%,500px);padding:40px;border:1px solid #29354d;border-radius:24px;background:#121b2b}.brand{color:#8ca9ff;letter-spacing:.12em;font-size:12px;font-weight:700}h1{font-size:30px;line-height:1.2;margin:24px 0 16px}p{color:#b6c3db}.reference{font-size:14px}.button{display:block;margin-top:28px;padding:14px 20px;border-radius:12px;background:#b9f3d7;color:#0e2b21;text-align:center;font-weight:650;text-decoration:none}@media(max-width:480px){.card{padding:28px}h1{font-size:26px}}</style></head>
+<style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:#f6f7f1;color:#19372e;font:16px/1.75 system-ui,sans-serif}.card{width:min(100%,500px);padding:40px;border:1px solid #dfe4d8;border-radius:24px;background:#fff}.brand{color:#607457;letter-spacing:.14em;font-size:11px;font-weight:700}h1{font-size:34px;font-weight:550;letter-spacing:-.045em;line-height:1.15;margin:28px 0 18px}p{color:#687566}.reference{font-size:13px}.button{display:block;margin-top:28px;padding:14px 20px;border-radius:12px;background:#19372e;color:#eff6e7;text-align:center;font-weight:600;font-size:14px;text-decoration:none}.button:hover{background:#2b5142}.button:focus-visible{outline:2px solid #71965b;outline-offset:4px}@media(max-width:480px){.card{padding:28px}h1{font-size:30px}}</style></head>
 <body><main class="card"><div class="brand">ALLEN VPN</div><h1>${title}</h1><p>${escapeHtml(message)}</p>${reference ? `<p class="reference">Код обращения: <strong>${escapeHtml(reference)}</strong></p>` : ''}${button}</main></body></html>`);
     }
 }
