@@ -1,6 +1,6 @@
 # Allen VPN subscription page
 
-Fork: https://github.com/xottsy/allen-subpage
+Fork: https://github.com/xottsy/allen-subpage/tree/codex/device-antifraud
 
 Based on https://github.com/remnawave/subscription-page at commit
 `9045728e6e197a2581c6da40f4f92b170a8bad53` (version 8.0.1).

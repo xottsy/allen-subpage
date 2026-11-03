@@ -154,7 +154,7 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
                     </Center>
                     <Center>
                         <a
-                            href="https://github.com/xottsy/allen-subpage"
+                            href="https://github.com/xottsy/allen-subpage/tree/codex/device-antifraud"
                             target="_blank"
                             rel="noopener noreferrer"
                             style={{ fontSize: 12, color: 'var(--mantine-color-dimmed)' }}
