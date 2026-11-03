@@ -1,6 +1,5 @@
 import { Box, Center, Container, Group, Image, Stack, Title } from '@mantine/core'
 import { TSubscriptionPagePlatformKey } from '@remnawave/subscription-page-types'
-
 import {
     AccordionBlockRenderer,
     CardsBlockRenderer,
@@ -13,9 +12,13 @@ import {
     SubscriptionLinkWidget,
     TimelineBlockRenderer
 } from '@widgets/main'
-import { useAppConfig, useAppConfigStoreActions, useCurrentLang } from '@entities/app-config-store'
+
+import { Page } from '@shared/ui'
 import { LanguagePicker } from '@shared/ui/language-picker/language-picker.shared'
-import { Page, RemnawaveLogo } from '@shared/ui'
+
+import { useAppConfig, useAppConfigStoreActions, useCurrentLang } from '@entities/app-config-store'
+
+import { AllenIntro } from './allen-intro'
 
 interface IMainPageComponentProps {
     isMobile: boolean
@@ -83,7 +86,21 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
                                     }}
                                 />
                             ) : (
-                                <RemnawaveLogo c="cyan" size={32} />
+                                <Box
+                                    aria-hidden="true"
+                                    style={{
+                                        width: 32,
+                                        height: 32,
+                                        display: 'grid',
+                                        placeItems: 'center',
+                                        borderRadius: 10,
+                                        background: '#b9f3d7',
+                                        color: '#10291f',
+                                        fontWeight: 800
+                                    }}
+                                >
+                                    A
+                                </Box>
                             )}
                             <Title
                                 c={hasCustomLogo ? 'white' : 'cyan'}
@@ -110,6 +127,7 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
                 style={{ position: 'relative', zIndex: 1 }}
             >
                 <Stack gap="xl">
+                    <AllenIntro />
                     {SubscriptionInfoBlockRenderer && (
                         <SubscriptionInfoBlockRenderer isMobile={isMobile} />
                     )}
@@ -133,6 +151,16 @@ export const MainPageComponent = ({ isMobile, platform }: IMainPageComponentProp
                             locales={config.locales}
                             onLanguageChange={setLanguage}
                         />
+                    </Center>
+                    <Center>
+                        <a
+                            href="https://github.com/xottsy/allen-subpage"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ fontSize: 12, color: 'var(--mantine-color-dimmed)' }}
+                        >
+                            Исходный код страницы
+                        </a>
                     </Center>
                 </Stack>
             </Container>

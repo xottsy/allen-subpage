@@ -15,6 +15,7 @@ import {
     SUBPAGE_DEFAULT_CONFIG_UUID,
 } from '@remnawave/subscription-page-types';
 
+import { DeviceGate } from '@common/antifraud/device-gate';
 import { AxiosService } from '@common/axios';
 import { TypedConfigService } from '@common/config/app-config';
 import { getAssetsPath, isDevelopment } from '@common/utils';
@@ -32,6 +33,7 @@ export class WebpageService implements OnApplicationBootstrap {
         private readonly configService: TypedConfigService,
         private readonly axiosService: AxiosService,
         private readonly jwtService: JwtService,
+        private readonly deviceGate: DeviceGate,
     ) {
         this.internalJwtSecret = this.configService.getOrThrow('INTERNAL_JWT_SECRET');
         this.subpageConfigUuid = this.configService.getOrThrow('SUBPAGE_CONFIG_UUID');
@@ -108,7 +110,17 @@ export class WebpageService implements OnApplicationBootstrap {
             throw new NotFoundException();
         }
 
-        return subpageConfig;
+        return {
+            ...subpageConfig,
+            brandingSettings: {
+                ...subpageConfig.brandingSettings,
+                title: this.configService.get('ALLEN_BRAND_NAME'),
+            },
+            baseSettings: {
+                ...subpageConfig.baseSettings,
+                ...(this.deviceGate.enabled ? { showConnectionKeys: false } : {}),
+            },
+        };
     }
 
     private async fetchSubscriptionPageConfigList(): Promise<string[]> {
@@ -184,6 +196,7 @@ export class WebpageService implements OnApplicationBootstrap {
         res: Response,
         shortUuid: string,
     ): Promise<void> {
+        if (!(await this.deviceGate.allow(req, res, shortUuid, true))) return;
         try {
             const subscriptionDataResponse = await this.axiosService.getSubscriptionInfo(
                 clientIp,
@@ -217,7 +230,7 @@ export class WebpageService implements OnApplicationBootstrap {
 
             const subscriptionData = subscriptionDataResponse.response;
 
-            if (!baseSettings.showConnectionKeys) {
+            if (this.deviceGate.enabled || !baseSettings.showConnectionKeys) {
                 subscriptionData.response.links = [];
                 subscriptionData.response.ssConfLinks = {};
             }

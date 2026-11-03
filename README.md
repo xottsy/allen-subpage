@@ -1,5 +1,10 @@
 ## Remnawave Subscription Page
 
+### Allen VPN fork
+
+This fork adds Allen branding and checks devices with Allen core before issuing a subscription.
+Setup, tests, trust boundaries and the pinned upstream version: [UPSTREAM.md](UPSTREAM.md).
+
 Learn more about Remnawave [here](https://docs.rw/).
 
 # Contributors

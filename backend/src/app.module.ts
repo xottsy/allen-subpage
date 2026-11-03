@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConditionalModule } from '@nestjs/config';
 
+import { AntifraudModule } from '@common/antifraud/antifraud.module';
 import { AxiosModule } from '@common/axios/axios.module';
 import { AppConfigModule } from '@common/config/app-config/app-config.module';
 
@@ -11,6 +12,7 @@ import { WebpageModule } from '@modules/webpage/webpage.module';
 @Module({
     imports: [
         AppConfigModule,
+        AntifraudModule,
         AxiosModule,
         WebpageModule,
         ConditionalModule.registerWhen(MarzbanModule, 'MARZBAN_LEGACY_LINK_ENABLED'),

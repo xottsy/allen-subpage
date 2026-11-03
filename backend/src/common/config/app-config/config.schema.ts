@@ -66,9 +66,28 @@ export const configSchema = z
         MARZBAN_LEGACY_SUBSCRIPTION_VALID_FROM: z.optional(z.string()),
         MARZBAN_LEGACY_DROP_REVOKED_SUBSCRIPTIONS: booleanString(),
         INTERNAL_JWT_SECRET: z.string(),
+        ALLEN_BRAND_NAME: z.string().max(80).default('Allen VPN'),
+        ALLEN_ANTIFRAUD_URL: z.string().url().optional(),
+        ALLEN_ANTIFRAUD_SECRET: z.string().min(32).optional(),
+        ALLEN_SUPPORT_URL: z.string().url().optional(),
+        ALLEN_ANTIFRAUD_TIMEOUT_MS: z.coerce.number().int().min(250).max(10000).default(2000),
         EGAMES_COOKIE: z.optional(z.string()),
     })
     .superRefine((data, ctx) => {
+        if (Boolean(data.ALLEN_ANTIFRAUD_URL) !== Boolean(data.ALLEN_ANTIFRAUD_SECRET)) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'Configure both ALLEN_ANTIFRAUD_URL and ALLEN_ANTIFRAUD_SECRET',
+                path: ['ALLEN_ANTIFRAUD_URL'],
+            });
+        }
+        if (data.ALLEN_ANTIFRAUD_URL && !data.ALLEN_SUPPORT_URL) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'ALLEN_SUPPORT_URL is required for antifraud',
+                path: ['ALLEN_SUPPORT_URL'],
+            });
+        }
         if (
             !data.REMNAWAVE_PANEL_URL.startsWith('http://') &&
             !data.REMNAWAVE_PANEL_URL.startsWith('https://')

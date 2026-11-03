@@ -5,13 +5,17 @@ import { Logger } from '@nestjs/common';
 
 import { TRequestTemplateTypeKeys } from '@remnawave/backend-contract';
 
+import { DeviceGate } from '@common/antifraud/device-gate';
 import { AxiosService } from '@common/axios/axios.service';
 
 @Injectable()
 export class SubscriptionService {
     private readonly logger = new Logger(SubscriptionService.name);
 
-    constructor(private readonly axiosService: AxiosService) {}
+    constructor(
+        private readonly axiosService: AxiosService,
+        private readonly deviceGate: DeviceGate,
+    ) {}
 
     public async serveSubscriptionPage(
         clientIp: string,
@@ -20,6 +24,7 @@ export class SubscriptionService {
         shortUuid: string,
         clientType?: TRequestTemplateTypeKeys,
     ): Promise<void> {
+        if (!(await this.deviceGate.allow(req, res, shortUuid))) return;
         try {
             const subscriptionDataResponse = await this.axiosService.getSubscription(
                 clientIp,
@@ -37,6 +42,7 @@ export class SubscriptionService {
             if (subscriptionDataResponse.headers) {
                 res.set(subscriptionDataResponse.headers);
             }
+            if (this.deviceGate.enabled) this.deviceGate.noStore(res);
 
             res.status(200).send(subscriptionDataResponse.subscription);
             return;

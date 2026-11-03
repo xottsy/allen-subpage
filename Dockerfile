@@ -1,25 +1,32 @@
-FROM node:24.22-trixie-slim AS backend-build
+FROM node:24-bookworm-slim AS frontend-build
+WORKDIR /build
+COPY frontend/package*.json ./
+RUN npm ci --ignore-scripts --no-audit --no-fund
+COPY frontend/ .
+RUN npm run typecheck && npm run cb
+
+FROM node:24-bookworm-slim AS backend-build
 WORKDIR /opt/app
 
 COPY backend/package*.json ./
 COPY backend/tsconfig.json ./
 COPY backend/tsconfig.build.json ./
 
-RUN npm ci --prefer-offline --no-audit --no-fund
+RUN npm ci --ignore-scripts --no-audit --no-fund
 
 COPY backend/ .
 
-RUN npm run build \
+RUN npm run typecheck && node --test scripts/test-antifraud.cjs && npm run build \
     && npm run trace
 
-FROM node:24.22-trixie-slim
+FROM node:24-bookworm-slim
 WORKDIR /opt/app
 
-LABEL org.opencontainers.image.title="Remnawave Subscription Page"
-LABEL org.opencontainers.image.description="Remnawave Subscription Page"
-LABEL org.opencontainers.image.url="https://github.com/remnawave/subscription-page"
-LABEL org.opencontainers.image.source="https://github.com/remnawave/subscription-page"
-LABEL org.opencontainers.image.vendor="Remnawave"
+LABEL org.opencontainers.image.title="Allen VPN Subscription Page"
+LABEL org.opencontainers.image.description="Allen VPN subscription page with device checks"
+LABEL org.opencontainers.image.url="https://github.com/xottsy/allen-subpage"
+LABEL org.opencontainers.image.source="https://github.com/xottsy/allen-subpage"
+LABEL org.opencontainers.image.vendor="Allen VPN; based on Remnawave"
 LABEL org.opencontainers.image.licenses="AGPL-3.0"
 LABEL org.opencontainers.image.documentation="https://docs.rw"
 
@@ -28,7 +35,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf 
 
 COPY --from=backend-build /opt/app/dist ./dist
 
-COPY frontend/dist/ ./frontend/
+COPY --from=frontend-build /build/dist/ ./frontend/
 COPY backend/ecosystem.config.js ./
 COPY backend/docker-entrypoint.sh ./
 
