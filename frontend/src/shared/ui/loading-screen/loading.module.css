@@ -1,4 +1,0 @@
-.mark { display: grid; place-items: center; width: 54px; height: 56px; border-radius: 17px 17px 17px 5px; background: #19372e; color: #ceeca5; font-size: 32px; font-weight: 550; margin-bottom: 12px; }
-.label { color: #687566; font-size: 14px; }
-.loader { width: 20px; height: 20px; border: 2px solid #dde4d5; border-top-color: #527746; border-radius: 50%; animation: spin 1s linear infinite; margin-top: 18px; }
-@keyframes spin { to { transform: rotate(360deg); } }

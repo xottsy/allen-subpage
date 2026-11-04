@@ -18,13 +18,12 @@ Allen changes:
   return 503. Rendering of subscription names/announcements depends on the client.
 - When connected, browser bootstrap never contains raw protocol keys, even if the upstream
   page configuration enables their display. Successful and denied responses forbid shared caching.
-- Own Allen frontend: warm light palette, dark green accents, device/app selection, one setup
-  step at a time, separate subscription link/QR and help panels, mobile and keyboard support.
-  Instructions, application URLs, languages and visibility settings still come from the panel.
-  System fonts without Google Fonts requests; matching loading/error/blocked pages.
-- Core prioritizes anomalous Happ User-Agent grammar based on aggregate production data,
-  while preserving observed short legacy and Apple networking formats. Hardware metadata
-  remains secondary; a well-formed UA alone is not proof of a genuine device.
+- At the owner's request, the previous dark frontend from commit 324c8df1c760 is restored.
+  The newer backend with inert warning subscriptions is retained. Instructions, application
+  URLs, languages and visibility settings still come from the panel; no Google Fonts request.
+- Current temporary core policy automatically blocks only `http` (case-insensitive, including
+  `https`) in User-Agent. Device inconsistencies, unusual Happ grammar, HWID problems and
+  identifier rotation only notify while keeping access. Manual administrator decisions remain.
 - A self-contained Docker build builds both frontend and backend from source.
 
 ## Configuration

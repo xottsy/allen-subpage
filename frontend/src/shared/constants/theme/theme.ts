@@ -5,7 +5,8 @@ import components from './overrides'
 export const theme = createTheme({
     components,
     cursorType: 'pointer',
-    fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif',
+    fontFamily:
+        'Montserrat, Vazirmatn, Apple Color Emoji, Noto Sans SC, Twemoji Country Flags, sans-serif',
     fontFamilyMonospace: 'Fira Mono, monospace',
     breakpoints: {
         xs: '25em',
@@ -19,7 +20,7 @@ export const theme = createTheme({
     },
     scale: 1,
     fontSmoothing: true,
-    focusRing: 'auto',
+    focusRing: 'never',
     white: '#ffffff',
     black: '#24292f',
     colors: {
@@ -86,11 +87,11 @@ export const theme = createTheme({
         ]
     },
     primaryShade: 8,
-    primaryColor: 'green',
+    primaryColor: 'cyan',
     autoContrast: true,
     luminanceThreshold: 0.3,
     headings: {
-        fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif',
+        fontFamily: 'Unbounded, Vazirmatn, Apple Color Emoji, Noto Sans SC, sans-serif',
         fontWeight: '600'
     },
     defaultRadius: 'md'

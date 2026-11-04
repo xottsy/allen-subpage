@@ -9,24 +9,22 @@
 
 .label {
     text-align: center;
-    font-weight: 650;
-    font-size: rem(12px);
-    letter-spacing: .15em;
+    font-weight: 900;
+    font-size: rem(220px);
     line-height: 1;
     margin-bottom: calc(var(--mantine-spacing-xl) * 1.5);
-    color: #607457;
+    color: var(--mantine-color-blue-3);
 
     @media (max-width: $mantine-breakpoint-sm) {
-        font-size: rem(12px);
+        font-size: rem(120px);
     }
 }
 
 .title {
     text-align: center;
-    font-weight: 550;
+    font-weight: 900;
     font-size: rem(38px);
-    color: #19372e;
-    letter-spacing: -.04em;
+    color: var(--mantine-color-white);
 
     @media (max-width: $mantine-breakpoint-sm) {
         font-size: rem(32px);
@@ -38,5 +36,5 @@
     margin: auto;
     margin-top: var(--mantine-spacing-xl);
     margin-bottom: calc(var(--mantine-spacing-xl) * 1.5);
-    color: #687566;
+    color: var(--mantine-color-blue-1);
 }
